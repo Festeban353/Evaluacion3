@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/estilotabla.css">
+    <title>Tienda Virtual (Usuario)</title>
+</head>
+
+<body>
+    <nav>
+        <ul>
+            <li><a href="index.html">Cerrar Sesion</a></li>
+        </ul>
+    </nav>
+    <h2>Juegos (Usuario) </h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Nombre Juego</th>
+                <th>Genero</th>
+                <th>Precio</th>
+                <th>Fecha de Lanzamiento</th>
+                <th>Descripcion</th>
+
+            </tr>
+        </thead>
+        <tbody id="juegos-list"></tbody>
+    </table>
+
+    <script>
+        // Función para cargar los juegos al cargar la página
+        window.onload = function () {
+            // Realizar una solicitud GET a la ruta /api/juegos
+            fetch('/api/juegos')
+                // Procesar la respuesta como JSON
+                .then(function (response) {
+                    return response.json();
+                })
+                // Cuando se obtienen los datos JSON
+                .then(function (data) {
+                    // Obtener una referencia al elemento HTML con el ID 'juegos-list'
+                    var juegosList = document.getElementById('juegos-list');
+                    // Limpiar cualquier contenido previo en la tabla
+                    juegosList.innerHTML = '';
+
+                    // Iterar sobre cada juego en los datos recibidos
+                    data.forEach(function (juego) {
+                        // Crear una nueva fila de tabla
+                        var row = document.createElement('tr');
+                        // Establecer el contenido HTML de la fila con los datos del juego
+                        row.innerHTML = '<td>' + juego.NombreJuego + '</td>' +
+                            '<td>' + juego.Genero + '</td>' +
+                            '<td>' + juego.Precio + '</td>' +
+                            '<td>' + new Date(juego.Fecha).toLocaleDateString() + '</td>' +
+                            '<td>' + juego.Descripcion + '</td>';
+                        // Agregar la fila a la lista de juegos
+                        juegosList.appendChild(row);
+                    });
+                })
+                .catch(function (error) {
+                    console.error('Error al cargar juegos:', error);
+                });
+        };
+
+    </script>
+</body>
+
+</html>

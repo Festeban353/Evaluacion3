@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/estiloformulario.css">
+    <title>Imágenes Subidas</title>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="listardatos.html"> Lista Juegos</a></li>
+            <li><a href="index.html">Cerrar Sesión</a></li>
+        </ul>
+    </nav>
+
+    <h2>Formulario de Subida de Foto</h2>
+    <form id="uploadForm" action="/subir_imagenes" method="post" enctype="multipart/form-data">
+        <div>
+            <label for="NombreImagen">Nombre de la foto:</label>
+            <input type="text" id="NombreImagen" name="NombreImagen" required><br><br>
+        </div>
+        
+        <div>
+            <label for="imagen">Seleccione la foto:</label>
+            <input type="file" id="imagen" name="imagen" required>
+        </div>
+        
+        <div>
+            <input type="submit" value="Subir Foto">
+        </div>
+    </form>
+
+    <h2>Imágenes Subidas</h2>
+    <div id="imagenesSubidas">
+        <!-- Las imágenes subidas se mostrarán aquí -->
+    </div>
+   
+    <script>
+        // Función para cargar las imágenes al cargar la página
+        window.onload = function () {
+            fetch('/api/imagenes') // Endpoint para obtener las imágenes desde la base de datos
+                .then(response => response.json())
+                .then(data => {
+                    const imagenesDiv = document.getElementById('imagenesSubidas');
+                    data.forEach(imagen => {
+                        const imgDiv = document.createElement('div');
+                        imgDiv.innerHTML = 
+                            '<h3>' + imagen.NombreImagen + '</h3>' +
+                            '<img src="/imagenes/' + imagen.Imagen + '" alt="' + imagen.NombreImagen + '" width="200">';
+                        imagenesDiv.appendChild(imgDiv);
+                    });
+                })
+                .catch(error => console.error('Error al cargar las imágenes:', error));
+        };
+    </script>
+</body>
+</html>

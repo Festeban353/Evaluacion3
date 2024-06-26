@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/estilotabla.css">
+    <title>Tienda Virtual (Administrador)</title>
+</head>
+
+<body>
+    <nav>
+        <ul>
+            <li><a href="agregar.html">Agregar Juego</a></li>
+            <li><a href="imagenes.html">Agregar Imagenes</a></li>
+            <li><a href="index.html">Cerrar Sesion</a></li>
+        </ul>
+    </nav>
+    <h2>Juegos (Administrador)</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Nombre Juego</th>
+                <th>Genero</th>
+                <th>Precio</th>
+                <th>Fecha de Lanzamiento</th>
+                <th>Descripcion</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="juegos-list"></tbody>
+    </table>
+
+    <script>
+        // Función para cargar los juegos al cargar la página
+        window.onload = function () {
+            fetch('http://localhost:3000/api/juegos')
+                .then(function (response) {
+                    if (!response.ok) {
+                        throw new Error('La respuesta del servidor no fue exitosa');
+                    }
+                    return response.json();
+                })
+                .then(function (data) {
+                    var juegosList = document.getElementById('juegos-list');
+                    data.forEach(function (juego) {
+                        var row = document.createElement('tr');
+                        row.innerHTML = '<td>' + juego.NombreJuego + '</td>' +
+                            '<td>' + juego.Genero + '</td>' +
+                            '<td>' + juego.Precio + '</td>' +
+                            '<td>' + new Date(juego.Fecha).toLocaleDateString() + '</td>' +
+                            '<td>' + juego.Descripcion + '</td>' +
+                            '<td>' +
+                            '<button type="button" class="btn btn-danger" onclick="eliminarJuego(' + juego.id + ')">Eliminar</button>' +
+                            '<button onclick="modificarJuego(' + juego.id + ')">Modificar</button>' +
+                            '</td>';
+                        juegosList.appendChild(row);
+                    });
+                })
+                .catch(function (error) {
+                    console.error('Error al cargar los juegos:', error);
+                    alert('Error al cargar los juegos. Por favor, inténtalo de nuevo más tarde.');
+                });
+        };
+
+        // Función para eliminar un juego
+        function eliminarJuego(id) {
+            if (confirm('¿Estás seguro de que deseas eliminar este juego?')) {
+                fetch('http://localhost:3000/eliminar_juegos/' + id, {
+                    method: 'DELETE'
+                })
+                    .then(function (response) {
+                        if (response.ok) {
+                            alert('Juego eliminado exitosamente');
+                            location.reload(); // Recargar la página después de eliminar el juego
+                        } else {
+                            alert('Error al eliminar el juego');
+                        }
+                    })
+                    .catch(function (error) {
+                        console.error('Error al eliminar el juego:', error);
+                        alert('Error al eliminar el juego. Por favor, inténtalo de nuevo más tarde.');
+                    });
+            }
+        }
+
+        // Función para modificar un juego
+        function modificarJuego(id) {
+            window.location.href = '/modificar_juegos.html?id=' + id;
+        }
+    </script>
+
+</body>
+
+</html>

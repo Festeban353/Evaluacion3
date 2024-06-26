@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Metadatos del documento -->
+    <meta charset="UTF-8"> <!-- Define la codificación de caracteres como UTF-8 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Configura la vista del documento para que sea adecuada para todos los dispositivos, asegurando la correcta visualización en móviles -->
+    <link rel="stylesheet" href="css/estiloformulario.css">
+    <!-- Vincula el archivo de estilos CSS externo para estilizar el formulario -->
+    <title>Modificar Juegos</title> <!-- Título de la página que aparece en la pestaña del navegador -->
+</head>
+
+<body>
+    <h2>Modificar Juegos</h2> <!-- Encabezado principal de la página -->
+    <form id="modificar-form" action="/modificar_juegos" method="POST"> <!-- Formulario para modificar un juego, que envía los datos mediante el método POST a la ruta /modificar_juegos -->
+        <input type="hidden" id="juegos-id" name="id"> <!-- Campo oculto para almacenar el ID del juego -->
+        <div>
+            <label for="nombrejuego">NombreJuego:</label> <!-- Etiqueta para el campo de nombre -->
+            <input type="text" id="nombrejuego" name="nombrejuego" required> <!-- Campo de entrada de texto para el nombre del juego, obligatorio -->
+        </div>
+
+        <div>
+            <label for="genero">Genero:</label> <!-- Etiqueta para el campo de categoría -->
+            <select id="genero" name="genero" required> 
+                <option value="" disabled selected> Selecciona un género</option> <!-- Menú desplegable para seleccionar la categoría del Juego, obligatorio -->
+                <!-- Opciones de categorías disponibles -->
+                <option value="Plataformas">Plataformas</option>
+                <option value="Matamarcianos">Matamarcianos</option>
+                <option value="RPG">RPG</option>
+                <option value="Scroll Lateral">Scroll Lateral</option>
+                <option value="FPS">FPS</option>
+                <option value="Accion y Aventura">Accion y Aventura</option>
+                <option value="Terror">Terror</option>
+                <option value="Puzzles">Puzzles</option>
+                <option value="MOBA">MOBA</option>
+                <option value="Peleas">Peleas</option>
+                <option value="Carreras">Carreras</option>
+                <option value="Sandbox">Sandbox</option>
+                <option value="Cartas">Cartas</option>
+                <option value="Estrategias">Estrategias</option>
+            </select>
+        </div>
+
+        <div>
+            <label for="precio">Precio:</label> <!-- Etiqueta para el campo de precio de entrada -->
+            <input type="number" id="precio" name="precio" required><br> <!-- Campo de entrada numérica para el precio del juego, obligatorio -->
+        
+            <label for="fecha">Fecha:</label> <!-- Etiqueta para el campo de fecha de lanzamiento -->
+            <input type="date" id="fecha" name="fecha" required> <!-- Campo de entrada de fecha para la fecha de lanzamiento, obligatorio -->
+        </div>
+
+        <div>
+            <label for="descripcion">Descripción:</label> <!-- Etiqueta para el campo de descripción -->
+            <input type="text" id="descripcion" name="descripcion" required> <!-- Campo de entrada de texto para la descripción del juego, obligatorio -->
+        </div>
+
+        <button type="submit">Guardar Cambios</button> <!-- Botón para enviar el formulario -->
+    </form>
+
+    <script src="/app.js"></script>
+    <script>
+        // Obtener el ID del juego de la URL
+        const urlParams = new URLSearchParams(window.location.search); // Crea un objeto URLSearchParams para trabajar con los parámetros de la URL
+        const juegosId = urlParams.get('id'); // Obtiene el valor del parámetro 'id' de la URL
+
+        // Obtener el formulario y los campos
+        const modificarForm = document.getElementById('modificar-form'); // Obtiene el formulario por su ID
+        const idInput = document.getElementById('juegos-id'); // Obtiene el campo oculto de ID
+        const nombreJuegoInput = document.getElementById('nombrejuego'); // Obtiene el campo de nombre
+        const generoInput = document.getElementById('genero'); // Obtiene el campo de genero
+        const precioInput = document.getElementById('precio'); // Obtiene el campo de precio
+        const fechaInput = document.getElementById('fecha'); // Obtiene el campo de fecha
+        const descripcionInput = document.getElementById('descripcion'); // Obtiene el campo de descripción
+
+        // Rellenar el formulario con los datos del juego correspondiente
+        fetch(`/api/juegos/${juegosId}`) // Realiza una solicitud para obtener los datos del juego con el ID especificado
+            .then(response => response.json()) // Convierte la respuesta en un objeto JSON
+            .then(juego => {
+                // Asigna los datos obtenidos a los campos del formulario
+                idInput.value = juego.id;
+                nombreJuegoInput.value = juego.NombreJuego;
+                generoInput.value = juego.Genero;
+                precioInput.value = juego.Precio;
+                fechaInput.value = juego.Fecha.split('T')[0]; // Convierte la fecha a formato "YYYY-MM-DD"
+                descripcionInput.value = juego.Descripcion;
+            })
+            .catch(error => {
+                console.error('Error al cargar los datos del juego:', error);
+                alert('Error al cargar los datos del juego. Por favor, inténtalo de nuevo más tarde.');
+            });
+
+        // Escuchar el evento submit del formulario
+        modificarForm.addEventListener('submit', function (event) {
+            event.preventDefault(); // Evitar que el formulario se envíe de forma predeterminada
+
+            // Obtener los valores actualizados del formulario
+            const formData = new FormData(modificarForm);
+            const juegoData = {
+                id: formData.get('id'),
+                nombrejuego: formData.get('nombrejuego'),
+                genero: formData.get('genero'),
+                precio: formData.get('precio'),
+                fecha: formData.get('fecha'),
+                descripcion: formData.get('descripcion')
+            };
+
+            // Enviar la solicitud POST para modificar el juego
+            fetch('/modificar_juegos', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(juegoData)
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert('Juego modificado exitosamente');
+                    window.location.href = '/listardatos.html'; // Redirigir a la página de listardatos.html
+                } else {
+                    throw new Error('Error al modificar el juego');
+                }
+            })
+            .catch(error => {
+                console.error('Error al modificar el juego:', error);
+                alert('Error al modificar el juego. Por favor, inténtalo de nuevo más tarde.');
+            });
+        });
+    </script>
+</body>
+
+</html>
